@@ -79,7 +79,9 @@ class NotesController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $note = Note::find($id)->update(['title' => $request->get('title')]);
+
+        return response()->json($note);
     }
 
     /**
@@ -90,6 +92,9 @@ class NotesController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $note = Note::findOrFail($id);
+
+        return response()->json($note->delete());
+
     }
 }

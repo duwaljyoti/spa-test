@@ -13,6 +13,14 @@ use Faker\Generator as Faker;
 |
 */
 
+$factory->define(\App\Note::class, function(Faker $faker) {
+    return [
+        'title' => 'test-Title' . str_random(2),
+        'user_id' => 1,
+        'is_favourite' => false,
+    ];
+});
+
 $factory->define(App\User::class, function (Faker $faker) {
     static $password;
 
