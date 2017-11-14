@@ -12722,6 +12722,14 @@ var router = new __WEBPACK_IMPORTED_MODULE_1_vue_router__["a" /* default */]({
     routes: __WEBPACK_IMPORTED_MODULE_3__routes__["a" /* default */]
 });
 
+window.flash = function (message) {
+    document.getElementById("messageBody").style.visibility = 'visible';
+    document.getElementById("messageBody").innerHTML = message;
+    setTimeout(function () {
+        document.getElementById("messageBody").style.visibility = 'hidden';
+    }, 1000);
+};
+
 new __WEBPACK_IMPORTED_MODULE_0_vue___default.a({
     el: '#app',
     render: function render(h) {
@@ -15640,6 +15648,11 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 //
 //
 //
+//
+//
+//
+//
+//
 
 
 
@@ -16538,7 +16551,17 @@ var render = function() {
       _vm._v(" "),
       _c("router-link", { attrs: { to: "/list" } }, [_vm._v("List")]),
       _vm._v(" "),
-      _c("router-view")
+      _c("router-link", { attrs: { to: "/favourite-list" } }, [
+        _vm._v("Favourite List")
+      ]),
+      _vm._v(" "),
+      _c("router-view"),
+      _vm._v(" "),
+      _c("div", {
+        staticClass: "alert alert-message messageBody",
+        staticStyle: { visibility: "hidden" },
+        attrs: { id: "messageBody" }
+      })
     ],
     1
   )
@@ -16564,6 +16587,9 @@ if (false) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__components_TestNote_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__components_TestNote_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__components_List_vue__ = __webpack_require__(43);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__components_List_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__components_List_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__components_FavouriteList_vue__ = __webpack_require__(57);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__components_FavouriteList_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__components_FavouriteList_vue__);
+
 
 
 
@@ -16577,6 +16603,9 @@ var routes = [{
 }, {
     path: '/list',
     component: __WEBPACK_IMPORTED_MODULE_2__components_List_vue___default.a
+}, {
+    path: '/favourite-list',
+    component: __WEBPACK_IMPORTED_MODULE_3__components_FavouriteList_vue___default.a
 }];
 
 /* harmony default export */ __webpack_exports__["a"] = (routes);
@@ -16635,8 +16664,6 @@ module.exports = Component.exports
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_axios__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_axios___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_axios__);
 //
 //
 //
@@ -16646,8 +16673,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-
-
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: 'CreateNote',
@@ -16660,15 +16685,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
     methods: {
         add: function add() {
-            var _this = this;
-
-            __WEBPACK_IMPORTED_MODULE_0_axios___default.a.post('/api/notes', {
-                'title': this.title,
-                'user_id': 1,
-                'is_favourite': false
-            }).then(function (response) {
-                _this.$router.push('/list');
-            });
+            this.$store.dispatch('add', this.title);
+            this.$router.push('/list');
+            flash('Note Created.');
         }
     }
 });
@@ -16799,6 +16818,16 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -16822,18 +16851,31 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
     },
 
     methods: {
-        deleteNote: function deleteNote(noteId) {
-            this.$store.dispatch('deleteNote', noteId);
+        deleteNote: function deleteNote(id) {
+            this.$store.dispatch('deleteNote', id);
+            flash('Note Successfully Deleted.');
         },
-        edit: function edit(noteId) {
+        edit: function edit(id) {
             this.editing = true;
-            this.currentEditingId = noteId;
+            this.currentEditingId = id;
         },
-        update: function update(noteId) {
+        update: function update(id) {
             this.currentEditingId = 0;
-            console.log(this.editedTitle);
-            this.$store.dispatch('edit', { id: noteId, title: this.editedTitle });
+            this.$store.dispatch('edit', { id: id, title: this.editedTitle });
             this.editing = false;
+            flash('Note Successfully Edited.');
+        },
+        favourite: function favourite(id, is_favourite) {
+            this.$store.dispatch('favourite', id);
+            var message = is_favourite ? 'Unfavourited Successfully' : 'Favourited successfully.';
+            flash(message);
+        },
+        favouriteClass: function favouriteClass(isFavourite) {
+            var heartIcon = 'glyphicon glyphicon-heart';
+            return isFavourite ? heartIcon : heartIcon + '-empty';
+        },
+        favouriteTitle: function favouriteTitle(isFavourite) {
+            return isFavourite ? 'Unfavourite' : 'Favourite';
         }
     },
     computed: _extends({}, Object(__WEBPACK_IMPORTED_MODULE_0_vuex__["b" /* mapState */])(['notes']))
@@ -16851,69 +16893,85 @@ var render = function() {
     _c(
       "ul",
       { staticClass: "list-group center" },
-      _vm._l(_vm.notes, function(note, index) {
-        return _vm.notes.length
-          ? _c("li", { staticClass: "list-group-item" }, [
-              _vm.currentEditingId !== note.id
-                ? _c("span", [_vm._v(_vm._s(note.title))])
-                : _vm._e(),
-              _vm._v(" "),
-              _vm.currentEditingId === note.id && _vm.editing
-                ? _c("input", {
-                    directives: [
-                      {
-                        name: "model",
-                        rawName: "v-model",
-                        value: _vm.editedTitle,
-                        expression: "editedTitle"
-                      }
-                    ],
-                    attrs: { type: "text", placeholder: note.title },
-                    domProps: { value: _vm.editedTitle },
-                    on: {
-                      input: function($event) {
-                        if ($event.target.composing) {
-                          return
+      [
+        _vm._v("\n        Notes\n        "),
+        _vm._l(_vm.notes, function(note, index) {
+          return _vm.notes.length
+            ? _c("li", { staticClass: "list-group-item" }, [
+                _vm.currentEditingId !== note.id
+                  ? _c("span", [_vm._v(_vm._s(note.title))])
+                  : _vm._e(),
+                _vm._v(" "),
+                _vm.currentEditingId === note.id && _vm.editing
+                  ? _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.editedTitle,
+                          expression: "editedTitle"
                         }
-                        _vm.editedTitle = $event.target.value
+                      ],
+                      attrs: { type: "text", placeholder: note.title },
+                      domProps: { value: _vm.editedTitle },
+                      on: {
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.editedTitle = $event.target.value
+                        }
                       }
+                    })
+                  : _vm._e(),
+                _vm._v("\n             \n            "),
+                _c("div", {
+                  staticClass: "glyphicon glyphicon-trash",
+                  attrs: { title: "Delete Note" },
+                  on: {
+                    click: function($event) {
+                      _vm.deleteNote(note.id)
                     }
-                  })
-                : _vm._e(),
-              _vm._v("\n         "),
-              _c("div", {
-                staticClass: "glyphicon glyphicon-trash",
-                on: {
-                  click: function($event) {
-                    _vm.deleteNote(note.id)
                   }
-                }
-              }),
-              _vm._v("\n         "),
-              _vm.currentEditingId !== note.id
-                ? _c("div", {
-                    staticClass: "glyphicon glyphicon-pencil",
-                    on: {
-                      click: function($event) {
-                        _vm.edit(note.id)
+                }),
+                _vm._v("\n             \n            "),
+                _vm.currentEditingId !== note.id
+                  ? _c("div", {
+                      staticClass: "glyphicon glyphicon-pencil",
+                      attrs: { title: "Edit Note" },
+                      on: {
+                        click: function($event) {
+                          _vm.edit(note.id)
+                        }
                       }
-                    }
-                  })
-                : _vm._e(),
-              _vm._v("\n         "),
-              _vm.currentEditingId === note.id
-                ? _c("div", {
-                    staticClass: "glyphicon glyphicon-ok",
-                    on: {
-                      click: function($event) {
-                        _vm.update(note.id)
+                    })
+                  : _vm._e(),
+                _vm._v("\n             \n            "),
+                _vm.currentEditingId === note.id
+                  ? _c("div", {
+                      staticClass: "glyphicon glyphicon-ok",
+                      on: {
+                        click: function($event) {
+                          _vm.update(note.id)
+                        }
                       }
+                    })
+                  : _vm._e(),
+                _vm._v(" "),
+                _c("div", {
+                  class: _vm.favouriteClass(note.is_favourite),
+                  attrs: { title: _vm.favouriteTitle(note.is_favourite) },
+                  on: {
+                    click: function($event) {
+                      _vm.favourite(note.id, note.is_favourite)
                     }
-                  })
-                : _vm._e()
-            ])
-          : _vm._e()
-      })
+                  }
+                })
+              ])
+            : _c("div", [_vm._v("No Notes Found")])
+        })
+      ],
+      2
     )
   ])
 }
@@ -16937,6 +16995,8 @@ if (false) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vuex__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_axios__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_axios___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_axios__);
+function _objectDestructuringEmpty(obj) { if (obj == null) throw new TypeError("Cannot destructure undefined"); }
+
 
 
 
@@ -16945,12 +17005,10 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_1_vuex
 
 var notesStore = new __WEBPACK_IMPORTED_MODULE_1_vuex__["a" /* default */].Store({
     state: {
-        notes: []
+        notes: [],
+        favouriteNotes: []
     },
     mutations: {
-        increment: function increment(state) {
-            state.noteCount++;
-        },
         FETCH: function FETCH(state, notes) {
             state.notes = notes;
         },
@@ -16959,6 +17017,9 @@ var notesStore = new __WEBPACK_IMPORTED_MODULE_1_vuex__["a" /* default */].Store
 
             var commit = _ref.commit,
                 state = _ref.state;
+        },
+        FETCH_FAVOURITE: function FETCH_FAVOURITE(state, favouriteNotes) {
+            state.favouriteNotes = favouriteNotes;
         }
     },
     actions: {
@@ -16990,6 +17051,33 @@ var notesStore = new __WEBPACK_IMPORTED_MODULE_1_vuex__["a" /* default */].Store
             }).then(function (response) {
                 _this2.dispatch('fetch');
             });
+        },
+        favourite: function favourite(_ref5, id) {
+            var _this3 = this;
+
+            _objectDestructuringEmpty(_ref5);
+
+            __WEBPACK_IMPORTED_MODULE_2_axios___default.a.put('/api/notes/' + id + '/favourite', {
+                is_favourite: true
+            }).then(function (response) {
+                _this3.dispatch('fetch');
+            });
+        },
+        fetchFavourite: function fetchFavourite(_ref6) {
+            var commit = _ref6.commit;
+
+            return __WEBPACK_IMPORTED_MODULE_2_axios___default.a.get('/api/notes?type=favourite').then(function (response) {
+                commit('FETCH_FAVOURITE', response.data);
+            }).catch();
+        },
+        add: function add(_ref7, title) {
+            var commit = _ref7.commit;
+
+            __WEBPACK_IMPORTED_MODULE_2_axios___default.a.post('/api/notes', {
+                'title': title,
+                'user_id': 1,
+                'is_favourite': false
+            }).then(function (response) {});
         }
     }
 });
@@ -17001,6 +17089,139 @@ var notesStore = new __WEBPACK_IMPORTED_MODULE_1_vuex__["a" /* default */].Store
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 48 */,
+/* 49 */,
+/* 50 */,
+/* 51 */,
+/* 52 */,
+/* 53 */,
+/* 54 */,
+/* 55 */,
+/* 56 */,
+/* 57 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(1)
+/* script */
+var __vue_script__ = __webpack_require__(58)
+/* template */
+var __vue_template__ = __webpack_require__(59)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/FavouriteList.vue"
+if (Component.esModule && Object.keys(Component.esModule).some(function (key) {  return key !== "default" && key.substr(0, 2) !== "__"})) {  console.error("named exports are not supported in *.vue files.")}
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-948c9680", Component.options)
+  } else {
+    hotAPI.reload("data-v-948c9680", Component.options)
+' + '  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 58 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vuex__ = __webpack_require__(4);
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  mounted: function mounted() {
+    this.fetchFavourite();
+  },
+
+  computed: _extends({}, Object(__WEBPACK_IMPORTED_MODULE_0_vuex__["b" /* mapState */])(['favouriteNotes'])),
+  methods: {
+    fetchFavourite: function fetchFavourite() {
+      this.$store.dispatch('fetchFavourite');
+    }
+  }
+});
+
+/***/ }),
+/* 59 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", [
+    _c("ul", { staticClass: "list-group center" }, [
+      Object.keys(_vm.favouriteNotes).length
+        ? _c(
+            "div",
+            [
+              _vm._v("\n            Favourite Notes\n            "),
+              _vm._l(_vm.favouriteNotes, function(note, index) {
+                return _c("li", { staticClass: "list-group-item" }, [
+                  _c("span", [_vm._v(_vm._s(note.title))])
+                ])
+              })
+            ],
+            2
+          )
+        : _c("div", [_vm._v("Not Found")])
+    ])
+  ])
+}
+var staticRenderFns = []
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-948c9680", module.exports)
+  }
+}
 
 /***/ })
 /******/ ]);

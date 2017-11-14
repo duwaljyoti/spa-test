@@ -16,6 +16,11 @@ class NotesController extends Controller
     {
         $allNotes = Note::all();
 
+        $requestQuery = request()->query();
+        if (array_key_exists('type', $requestQuery) && $requestQuery['type'] === 'favourite') {
+            $allNotes = $allNotes->where('is_favourite', true);
+        }
+
         return response()->json($allNotes);
     }
 
@@ -96,5 +101,13 @@ class NotesController extends Controller
 
         return response()->json($note->delete());
 
+    }
+
+    public function favourite($id)
+    {
+        $note = Note::find($id);
+        $note = $note->update(['is_favourite' => !$note->is_favourite]);
+
+        return response()->json($note);
     }
 }

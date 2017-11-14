@@ -17,4 +17,6 @@ Route::get('/', function () {
 
 Route::prefix('api')->group(function() {
     Route::resource('notes', 'NotesController');
+
+    Route::put('/notes/{note}/favourite', 'NotesController@favourite');
 });

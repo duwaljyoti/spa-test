@@ -8,8 +8,6 @@
 </template>
 
 <script>
-    import axios from 'axios';
-
     export default {
         name: 'CreateNote',
         data() {
@@ -21,14 +19,9 @@
         },
         methods: {
             add() {
-                axios.post('/api/notes', {
-                    'title': this.title,
-                    'user_id': 1,
-                    'is_favourite': false,
-                })
-                    .then((response) => {
-                      this.$router.push('/list');
-                    })
+                this.$store.dispatch('add', this.title);
+                this.$router.push('/list');
+                flash('Note Created.');
             }
         }
     }

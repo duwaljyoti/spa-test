@@ -10,9 +10,17 @@ const router = new VueRouter({
     routes
 });
 
+window.flash = function(message) {
+    document.getElementById("messageBody").style.visibility = 'visible';
+    document.getElementById("messageBody").innerHTML = message;
+    setTimeout(() => {
+        document.getElementById("messageBody").style.visibility = 'hidden';
+    }, 1000)
+};
+
 new Vue({
     el: '#app',
-   render: h => h(TestNote),
+    render: h => h(TestNote),
     router,
     store: notesStore,
 });

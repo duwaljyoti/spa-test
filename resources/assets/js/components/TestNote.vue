@@ -2,8 +2,13 @@
     <div>
         <router-link to="/create">Create</router-link>
         <router-link to="/list">List</router-link>
-
+        <router-link to="/favourite-list">Favourite List</router-link>
         <router-view></router-view>
+
+        <div class="alert alert-message messageBody"
+             id="messageBody"
+             style="visibility: hidden;"
+        ></div>
     </div>
 </template>
 

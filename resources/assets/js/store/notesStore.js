@@ -7,16 +7,17 @@ Vue.use(Vuex);
 const notesStore = new Vuex.Store({
     state: {
         notes: [],
+        favouriteNotes: []
     },
     mutations: {
-        increment (state) {
-            state.noteCount++
-        },
         FETCH(state, notes) {
             state.notes = notes;
         },
         DELETE_NOTE({ commit, state }, noteId) {
             // this.dispatch('fetch');
+        },
+        FETCH_FAVOURITE(state, favouriteNotes) {
+            state.favouriteNotes = favouriteNotes;
         }
     },
     actions: {
@@ -43,6 +44,30 @@ const notesStore = new Vuex.Store({
             })
                 .then((response) => {
                   this.dispatch('fetch');
+                });
+        },
+        favourite({}, id) {
+            axios.put(`/api/notes/${id}/favourite`, {
+                is_favourite: true
+            })
+              .then((response) => {
+                this.dispatch('fetch');
+              })
+        },
+        fetchFavourite({commit}) {
+          return axios.get('/api/notes?type=favourite')
+            .then((response) => {
+              commit('FETCH_FAVOURITE', response.data)
+            })
+            .catch();
+        },
+        add({commit}, title) {
+            axios.post('/api/notes', {
+                'title': title,
+                'user_id': 1,
+                'is_favourite': false,
+            })
+                .then((response) => {
                 });
         }
     }
