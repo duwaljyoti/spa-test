@@ -5,7 +5,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        <title>Laravel</title>
+        <title>Note App</title>
 
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css?family=Raleway:100,600" rel="stylesheet" type="text/css">
@@ -21,78 +21,40 @@
                 height: 100vh;
                 margin: 0;
             }
-
-            .full-height {
-                height: 100vh;
+            .component-header {
+                padding-bottom: 34px;
+                padding-top: 34px;
             }
-
-            .flex-center {
-                align-items: center;
-                display: flex;
-                justify-content: center;
+            li .options{
+                cursor: pointer;
             }
-
-            .position-ref {
-                position: relative;
+            li:hover .options{
+                margin-right:20px;
+                font-size: 15px;
             }
-
-            .top-right {
-                position: absolute;
-                right: 10px;
-                top: 18px;
+            .glyphicon {
+                margin-right: 20px;
             }
-
-            .content {
-                text-align: center;
+            .header-nav > a {
+                padding-right: 20px;
             }
-
-            .title {
-                font-size: 84px;
+            .header-nav {
+                padding: 20px;
+                text-align: left;
             }
-
-            .links > a {
-                color: #636b6f;
-                padding: 0 25px;
-                font-size: 12px;
+            body {
+                font-size: 16px;
                 font-weight: 600;
-                letter-spacing: .1rem;
-                text-decoration: none;
-                text-transform: uppercase;
             }
-
-            .m-b-md {
-                margin-bottom: 30px;
+            .note-form {
+                padding-top: 20px;
             }
         </style>
     </head>
     <body>
+    <div class="container">
     <div id="app" class="flex-center position-ref full-height">
-            {{--@if (Route::has('login'))--}}
-                {{--<div class="top-right links">--}}
-                    {{--@auth--}}
-                        {{--<a href="{{ url('/home') }}">Home</a>--}}
-                    {{--@else--}}
-                        {{--<a href="{{ route('login') }}">Login</a>--}}
-                        {{--<a href="{{ route('register') }}">Register</a>--}}
-                    {{--@endauth--}}
-                {{--</div>--}}
-            {{--@endif--}}
-
-            {{--<div class="content">--}}
-                {{--<div class="title m-b-md">--}}
-                    {{--Laravel--}}
-                {{--</div>--}}
-
-                {{--<div class="links">--}}
-                    {{--<a href="https://laravel.com/docs">Documentation</a>--}}
-                    {{--<a href="https://laracasts.com">Laracasts</a>--}}
-                    {{--<a href="https://laravel-news.com">News</a>--}}
-                    {{--<a href="https://forge.laravel.com">Forge</a>--}}
-                    {{--<a href="https://github.com/laravel/laravel">GitHub</a>--}}
-                {{--</div>--}}
-            {{--</div>--}}
-                {{--<test-note></test-note>--}}
-
+    </div>
     </div>
     </body>
     <script src="{{ asset('js/app.js') }}"></script>

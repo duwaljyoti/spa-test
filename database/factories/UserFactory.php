@@ -13,21 +13,10 @@ use Faker\Generator as Faker;
 |
 */
 
-$factory->define(\App\Note::class, function(Faker $faker) {
-    return [
-        'title' => 'test-Title' . str_random(2),
-        'user_id' => 1,
-        'is_favourite' => false,
-    ];
-});
-
-$factory->define(App\User::class, function (Faker $faker) {
-    static $password;
+$factory->define(App\Note::class, function (Faker $faker) {
 
     return [
-        'name' => $faker->name,
-        'email' => $faker->unique()->safeEmail,
-        'password' => $password ?: $password = bcrypt('secret'),
-        'remember_token' => str_random(10),
+        'title' => str_limit($faker->name, 10),
+        'is_favourite' => false
     ];
 });
