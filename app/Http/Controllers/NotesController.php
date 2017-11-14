@@ -14,24 +14,11 @@ class NotesController extends Controller
      */
     public function index()
     {
-        $allNotes = Note::all();
-
         $requestQuery = request()->query();
-        if (array_key_exists('type', $requestQuery) && $requestQuery['type'] === 'favourite') {
-            $allNotes = $allNotes->where('is_favourite', true);
-        }
+        $condition = array_key_exists('type', $requestQuery) && $requestQuery['type'] === 'favourite';
+        $allNotes = $condition ? Note::where('is_favourite', true)->latest()->get() : Note::latest()->get();
 
         return response()->json($allNotes);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -44,35 +31,12 @@ class NotesController extends Controller
     {
         $validatedNoteData = $request->validate([
             'title' => 'required',
-            'user_id' => 'required',
             'is_favourite' => 'required',
         ]);
 
         $note = Note::create($validatedNoteData);
 
         return response()->json($note);
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
     }
 
     /**
@@ -103,7 +67,12 @@ class NotesController extends Controller
 
     }
 
-    public function favourite($id)
+
+    /**
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function toggleFavourite($id)
     {
         $note = Note::find($id);
         $note = $note->update(['is_favourite' => !$note->is_favourite]);

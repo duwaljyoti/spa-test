@@ -1,5 +1,6 @@
 <template>
-    <div>
+    <div class="note-form">
+        <div class="component-header">Create A new Note</div>
         <form @submit.prevent="add">
             <input v-model="title">
             <button type="submit">Create</button>
@@ -21,7 +22,7 @@
             add() {
                 this.$store.dispatch('add', this.title);
                 this.$router.push('/list');
-                flash('Note Created.');
+                flash('Note Created.', 'success');
             }
         }
     }
