@@ -50,6 +50,7 @@ const notesStore = new Vuex.Store({
             axios.post(`${notes}`, {
                 'title': title,
                 'is_favourite': false,
+                'user_id': 1,
             });
         }
     }

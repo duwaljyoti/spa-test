@@ -20,3 +20,21 @@ Route::prefix('api')->group(function() {
 
     Route::put('/notes/{note}/toggleFavourite', 'NotesController@toggleFavourite');
 });
+
+Route::get('/dashboard', function () {
+    return view('dashboard');
+});
+
+Route::get('/user', function () {
+    return view('user.index');
+});
+
+Route::get('new-back-note', function() {
+   return view('note.index');
+});
+
+Route::get('/playground', 'NotesController@playground');
+
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');

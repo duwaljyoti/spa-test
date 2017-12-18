@@ -7,14 +7,12 @@ import notesStore from './store/notesStore';
 Vue.use(VueRouter);
 
 const router = new VueRouter({
-    routes
+    routes,
+    // mode: 'history',
 });
-
+console.log(983795873983435);
 window.events = new Vue();
 
-window.flash = function(message, type = 'success') {
-    window.events.$emit('flash', message, type);
-};
 
 new Vue({
     el: '#app',

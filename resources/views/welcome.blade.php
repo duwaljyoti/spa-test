@@ -57,5 +57,5 @@
     </div>
     </div>
     </body>
-    <script src="{{ asset('js/app.js') }}"></script>
+    <script src="{{ mix('build/js/noteApp.js') }}"></script>
 </html>

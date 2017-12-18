@@ -29,10 +29,15 @@ class NotesController extends Controller
      */
     public function store(Request $request)
     {
+//        dump(121);
         $validatedNoteData = $request->validate([
             'title' => 'required',
+            'description' => 'required',
             'is_favourite' => 'required',
+            'user_id' => 'required'
         ]);
+
+//        dd($validatedNoteData);
 
         $note = Note::create($validatedNoteData);
 
