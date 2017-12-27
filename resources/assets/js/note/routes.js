@@ -1,10 +1,8 @@
-import Note from './Note.vue';
-import Create from './Create.vue';
-import TestComponent2 from './TestComponent2.vue';
+import Note from './components/Note.vue';
+import Create from './components/Create.vue';
 
 const routes = [
-  { path: '/', component: Note },
-  { path: '/test1', component: TestComponent2 },
+  { path: '/', name: 'note-main', component: Note },
   { path: '/create', component: Create },
   { path: '*', redirect: '/' },
 ];

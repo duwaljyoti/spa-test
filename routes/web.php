@@ -16,9 +16,11 @@ Route::get('/', function () {
 });
 
 Route::prefix('api')->group(function() {
-    Route::resource('notes', 'NotesController');
+    Route::resource('notes', 'Api\NotesController');
 
-    Route::put('/notes/{note}/toggleFavourite', 'NotesController@toggleFavourite');
+    Route::put('/notes/{note}/toggleFavourite', 'Api\NotesController@toggleFavourite');
+    Route::get('/users', 'Api\UsersController@index');
+    Route::get('/users/{user}/notes', 'Api\UsersController@getNotesByUser');
 });
 
 Route::get('/dashboard', function () {

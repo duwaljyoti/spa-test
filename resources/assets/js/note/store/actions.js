@@ -1,5 +1,6 @@
 import axios from 'axios';
 import RESOURCE_NOTE from '../api';
+import notes from "../../api";
 
 export default {
   getAll({commit}) {
@@ -9,6 +10,15 @@ export default {
       })
       .catch();
   },
+
+  getFavourite({commit}) {
+    return axios.get(RESOURCE_NOTE + '?type=favourite')
+      .then((response) => {
+        commit('GET_FAVOURITE', response.data);
+      })
+      .catch();
+  },
+
   save({commit}, note) {
     note.is_favourite = false;
     note.user_id = 1;
@@ -18,5 +28,16 @@ export default {
       .catch((err) => {
         console.log(err);
       });
-  }
+  },
+
+  deleteNote({commit}, note) {
+    return axios.delete(`${RESOURCE_NOTE}/${note.id}`)
+      .then(resp => console.log(resp));
+  },
+
+  toggleFavourite({}, id) {
+    axios.put(`${notes}/${id}/toggleFavourite`, {
+      is_favourite: true
+    });
+  },
 }

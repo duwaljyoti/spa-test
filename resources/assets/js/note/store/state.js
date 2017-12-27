@@ -1,5 +1,6 @@
 const state = {
-  notes: ['note1', 'note2'],
+  notes: [],
+  favouriteNotes: [],
 };
 
 export default state;
