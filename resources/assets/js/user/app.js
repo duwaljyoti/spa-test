@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import Vuex from "vuex";
+import Vuex from 'vuex';
 import VueRouter from 'vue-router';
 import routes from './routes';
 import store from './store';
@@ -16,4 +16,4 @@ const userApp = new Vue({
   store,
 });
 
-userApp.$mount('#userApp');
+userApp.$mount('#app');

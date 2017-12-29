@@ -1,18 +1,9 @@
 <template>
     <div>
-        <nav class="navbar navbar-default">
-            <div class="container-fluid">
-                <div class="navbar-header">
-                    <a class="navbar-brand" href="#">My Notes</a>
-                </div>
-                <ul class="nav navbar-nav">
-                    <li><a href="new-note#/create">Create</a></li>
-                </ul>
-                <ul class="nav navbar-nav">
-                    <li><a href="new-note#">Notes</a></li>
-                </ul>
-            </div>
-        </nav>
+        <flash>
+        </flash>
+        <nav-bar>
+        </nav-bar>
         <div id="notes-list">
             <div id="list-header">
                 <h2>Create Note</h2>
@@ -34,6 +25,8 @@
 
 <script>
     import { mapActions, mapState } from 'vuex';
+    import NavBar from '../../components/NavBar';
+    import Flash from '../../components/Flash';
 
     export default {
       name: 'Create',
@@ -49,6 +42,7 @@
         save() {
           this.$store.dispatch('save', this.note)
             .then((response) => {
+              this.$emit('flash', { message: 'Note Created.' });
               console.log('here===>', response);
             })
             .catch((err) => {
@@ -58,6 +52,10 @@
       },
       computed: {
         ...mapState(['notes'])
-      }
+      },
+      components: {
+        NavBar,
+        Flash,
+      },
     }
 </script>

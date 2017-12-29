@@ -1,8 +1,17 @@
 import User from './components/User.vue';
 
 const routes = [
-  { path: '/', name: 'user', component: User },
-  { path: '*', redirect: '/' },
+  {
+    path: '/',
+    name: 'user',
+    component: User,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '*',
+    redirect: '/',
+    meta: { requiresAuth: true }
+  },
 
 ];
 

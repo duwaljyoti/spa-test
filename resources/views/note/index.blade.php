@@ -1,17 +1,5 @@
-<html>
-<head>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
-    <style>
-        @import url(https://fonts.googleapis.com/css?family=Raleway:400,300);
-    </style>
-    <link rel="stylesheet" href="{{ asset('build/css/main-style.css') }}">
-</head>
-<body>
-<div id="app">
-    <router-view></router-view>
-</div>
+@extends('layouts.newApp')
 
-</body>
-
-<script src="{{ mix('build/js/noteApp.js') }}"></script>
-</html>
+@section('script')
+    <script src="{{ mix('build/js/noteApp.js') }}"></script>
+@endsection

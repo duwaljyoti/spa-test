@@ -31,14 +31,24 @@
             }
         },
         created() {
-            window.events.$on('flash', (messageBody, type) => {
-                this.messageBody = messageBody;
-                this.type = type;
+            // window.events.$on('flash', (messageBody, type) => {
+            //     this.messageBody = messageBody;
+            //     this.type = type;
+            //     this.show = true;
+            //     setTimeout(() => {
+            //         this.show = false;
+            //     }, 1000)
+            // });
+        },
+      mounted() {
+          this.$parent.$on('flash', (received) =>  {
+                this.messageBody = received.message;
+                this.type = received.type ? received.type : 'success';
                 this.show = true;
                 setTimeout(() => {
                     this.show = false;
-                }, 1000)
-            });
-        },
+                }, 2000)
+          });
+      }
     }
 </script>

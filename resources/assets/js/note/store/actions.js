@@ -21,7 +21,7 @@ export default {
 
   save({commit}, note) {
     note.is_favourite = false;
-    note.user_id = 1;
+    note.user_id = window.loggedUser.id;
     return axios.post(RESOURCE_NOTE, note)
       .then((response) => {
       })
@@ -40,4 +40,9 @@ export default {
       is_favourite: true
     });
   },
+
+  update({commit} ,noteDetails) {
+    axios.put(`${RESOURCE_NOTE}/${noteDetails.noteId}`, noteDetails.updatedNote)
+      .then(resp => console.log(resp));
+  }
 }

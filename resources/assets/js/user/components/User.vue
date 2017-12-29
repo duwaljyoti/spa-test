@@ -1,34 +1,27 @@
 <template>
     <div>
-        <nav class="navbar navbar-default">
-            <div class="container-fluid">
-                <div class="navbar-header">
-                    <a class="navbar-brand" href="#">My Notes</a>
-                </div>
-                <ul class="nav navbar-nav">
-                    <li><a href="#/create">Users</a></li>
-                </ul>
-                <ul class="nav navbar-nav">
-                    <li><a href="#/create">Create</a></li>
-                </ul>
-            </div>
-        </nav>
+        <nav-bar>
+        </nav-bar>
         <div id="notes-list">
-            <select v-model="selectedUser" class="form-control">
-                <option :data-tokens="user.name" v-for="user in userList" v-bind:value="user.id">{{ user.name }}</option>
-            </select>
+            <v-select v-model="selectedUser" label="name" :options="userModule.users">
+            </v-select>
             <div id="list-header">
-                <h2>Title</h2>
+                <h2>User Notes</h2>
             </div>
             <div class="container">
                 <div class="list-group">
-                    <div v-if="userNotes.length">
-                    <a class="list-group-item" href="#" v-for="note in userNotes"
+                    <div v-if="userModule.userNotes.length && selectedUser">
+                    <a class="list-group-item" href="#" v-for="note in userModule.userNotes"
                        :class="(activeNote && activeNote.id === note.id) ? 'active' : ''"
                     >
                         <h4 class="list-group-item-heading" @click="toggleActiveClass(note)">
-                            {{ note.title }}
+                            {{ note.title }} &nbsp
+                            <div v-if="favouriteNoteIdList.indexOf(note.id) === -1"
+                                    class="glyphicon glyphicon-heart"
+                                 @click="favourite(note.id)"
+                            ></div>
                         </h4>
+
                     </a>
                     </div>
                     <div v-else>
@@ -41,49 +34,75 @@
                 </div>
             </div>
         </div>
-        {{ activeNote ? activeNote.description : '' }}
+        {{ (activeNote && selectedUser) ? activeNote.description : '' }}
     </div>
 </template>
 
 <script>
     import { mapActions, mapState } from 'vuex';
+    import NavBar from '../../components/NavBar';
+    import vSelect from 'vue-select';
+    import axios from 'axios';
 
     export default {
-      name: 'User',
+      name: 'user',
       data() {
         return {
           selectedUser: null,
           activeNote: {},
+          favouriteNoteIdList: [],
         }
       },
       mounted() {
-        this.get();
+        this.loggedUser = window.loggedUser;
+        const self = this;
+        this.get()
+          .then((resp) => {
+            if (!self.selectedUser || typeof self.selectedUser === 'undefined') {
+                self.selectedUser = self.userModule.users[0];
+            }
+          });
+        this.getFavouriteId();
       },
 
       methods: {
         ...mapActions([
           'get',
-          'getUserNotes'
+          'getUserNotes',
+          'toggleFavourite'
         ]),
-        toggleActiveClass(note) {
-          this.activeNote = note ? note : (this.userNotes ? this.userNotes[0] : {});
+        toggleActiveClass(note = null, setActiveNoteNull = false) {
+          this.activeNote = setActiveNoteNull ? {} : (note ? note : (this.userNotes ? this.userNotes[0] : {}));
+        },
+        getFavouriteId() {
+          if (this.loggedUser && this.loggedUser.id) {
+            axios.get(`api/users/${this.loggedUser.id}/getFavouriteNotesId`)
+              .then(resp => this.favouriteNoteIdList = resp.data);
+          }
+        },
+        favourite(noteId) {
+          this.toggleFavourite(noteId);
+          this.getFavouriteId();
         },
       },
       computed: {
-        ...mapState([
-          'users',
-          'userNotes'
-        ]),
-        userList() {
-            return this.users ? this.users : [];
-        },
+        ...mapState(['userModule']),
       },
       watch: {
         selectedUser() {
           this.activeNote = {};
-          this.getUserNotes(this.selectedUser);
-          this.toggleActiveClass();
+          if (this.selectedUser) {
+            this.getUserNotes(this.selectedUser.id)
+              .then((resp) => {
+              });
+          } else {
+            this.toggleActiveClass(null, true);
+          }
         }
+      },
+      components: {
+        NavBar,
+        vSelect,
       }
     }
 </script>

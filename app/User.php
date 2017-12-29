@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Http\Controllers\Api\NotesController;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
@@ -30,5 +31,10 @@ class User extends Authenticatable
     public function notes()
     {
         return $this->hasMany(Note::class);
+    }
+
+    public function favourites()
+    {
+        return $this->belongsToMany(Note::class, 'favourite_notes', 'user_id', 'note_id');
     }
 }

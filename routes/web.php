@@ -12,7 +12,7 @@
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('note.index');
 });
 
 Route::prefix('api')->group(function() {
@@ -21,6 +21,7 @@ Route::prefix('api')->group(function() {
     Route::put('/notes/{note}/toggleFavourite', 'Api\NotesController@toggleFavourite');
     Route::get('/users', 'Api\UsersController@index');
     Route::get('/users/{user}/notes', 'Api\UsersController@getNotesByUser');
+    Route::get('/users/{user}/getFavouriteNotesId', 'Api\NotesController@getFavouriteId');
 });
 
 Route::get('/dashboard', function () {
@@ -31,11 +32,9 @@ Route::get('/user', function () {
     return view('user.index');
 });
 
-Route::get('new-back-note', function() {
+Route::get('/note', function() {
    return view('note.index');
-});
-
-Route::get('/playground', 'NotesController@playground');
+})->name('note');
 
 Auth::routes();
 

@@ -8,6 +8,11 @@ use App\Http\Controllers\Controller;
 
 class NotesController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth')->except('index');
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -17,9 +22,18 @@ class NotesController extends Controller
     {
         $requestQuery = request()->query();
         $condition = array_key_exists('type', $requestQuery) && $requestQuery['type'] === 'favourite';
-        $allNotes = $condition ? Note::where('is_favourite', true)->latest()->get() : Note::latest()->get();
+        if ($condition) {
+            $allNotes = $this->favourite();
+        } else {
+            $allNotes = Note::latest()->where('user_id', auth()->id())->get();
+        }
 
         return response()->json($allNotes);
+    }
+
+    public function favourite()
+    {
+        return auth()->user()->favourites;
     }
 
     /**
@@ -30,15 +44,12 @@ class NotesController extends Controller
      */
     public function store(Request $request)
     {
-//        dump(121);
         $validatedNoteData = $request->validate([
             'title' => 'required',
             'description' => 'required',
             'is_favourite' => 'required',
             'user_id' => 'required'
         ]);
-
-//        dd($validatedNoteData);
 
         $note = Note::create($validatedNoteData);
 
@@ -57,6 +68,9 @@ class NotesController extends Controller
         $note = Note::find($id)->update(['title' => $request->get('title')]);
 
         return response()->json($note);
+
+        $allNotes = $this->favourite();
+        
     }
 
     /**
@@ -73,6 +87,10 @@ class NotesController extends Controller
 
     }
 
+    public function getFavouriteId()
+    {
+        return response()->json($this->favourite()->pluck('id'));
+    }
 
     /**
      * @param $id
@@ -80,9 +98,12 @@ class NotesController extends Controller
      */
     public function toggleFavourite($id)
     {
-        $note = Note::find($id);
-        $note = $note->update(['is_favourite' => !$note->is_favourite]);
-
-        return response()->json($note);
+        $userFavourites = auth()->user()->favourites();
+        if ($userFavourites->where('note_id', $id)->count()) {
+            $userFavourites->detach($id);
+        } else {
+            $userFavourites->attach($id);
+        }
+        return response()->json();
     }
 }

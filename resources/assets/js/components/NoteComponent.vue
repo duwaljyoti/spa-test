@@ -11,7 +11,6 @@
         name: 'NoteComponent',
         router,
         mounted() {
-            console.log('i am from note ');
         },
     }
 </script>
