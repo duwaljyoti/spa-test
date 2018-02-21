@@ -1,5 +1,7 @@
 <template>
     <div>
+        <loading :loading="loading">
+        </loading>
         <nav-bar>
         </nav-bar>
         <div id="notes-list">
@@ -41,6 +43,7 @@
 <script>
     import { mapActions, mapState } from 'vuex';
     import NavBar from '../../components/NavBar';
+    import Loading from '../../components/Loading';
     import vSelect from 'vue-select';
     import axios from 'axios';
 
@@ -51,6 +54,7 @@
           selectedUser: null,
           activeNote: {},
           favouriteNoteIdList: [],
+          loading: true,
         }
       },
       mounted() {
@@ -61,6 +65,7 @@
             if (!self.selectedUser || typeof self.selectedUser === 'undefined') {
                 self.selectedUser = self.userModule.users[0];
             }
+            this.loading = false;
           });
         this.getFavouriteId();
       },
@@ -103,6 +108,7 @@
       components: {
         NavBar,
         vSelect,
+        Loading,
       }
     }
 </script>

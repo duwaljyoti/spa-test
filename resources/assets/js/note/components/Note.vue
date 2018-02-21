@@ -1,5 +1,7 @@
 <template>
     <div>
+        <loading :loading="loading">
+        </loading>
         <flash>
         </flash>
         <nav-bar @note-route-changed="changeRoute('favourite')">
@@ -9,7 +11,7 @@
                 <h2>{{ noteTitle }}</h2>
             </div>
             <div class="container">
-                <div class="list-group">
+                <div class="list-group"  v-if="noteList.length">
                     <a class="list-group-item" href="#" v-for="note in noteList"
                        :class="activeNote.id === note.id ? 'active' : ''"
                     >
@@ -40,6 +42,12 @@
                         </h4>
                     </a>
                 </div>
+                <div v-else>
+                    <span>
+                        Looks like you dont have any notes at th moment.
+                        <router-link to="/create">Add</router-link>
+                    </span>
+                </div>
             </div>
         </div>
         <div v-if="noteList.length">
@@ -58,6 +66,7 @@
   import Flash from '../../components/Flash';
   import axios from 'axios';
   import NavBar from '../../components/NavBar';
+  import Loading from '../../components/Loading';
 
   export default {
     data() {
@@ -70,6 +79,7 @@
         editingNote: {},
         loggedUser: {},
         favouriteNoteIdList: [],
+        loading: true,
       }
     },
     name: 'Note',
@@ -78,6 +88,7 @@
       this.getFavouriteId();
     },
     mounted() {
+      console.log(this.$route);
       this.currentRoute = this.$route.query.type;
       this.get();
       setTimeout(() => {
@@ -96,24 +107,36 @@
       },
       get() {
         if (!this.currentRoute) {
-          this.getAll();
+          this.getAll()
+            .then(() => {
+              this.noteList = this.currentRoute ? this.favouriteNotes : this.notes;
+            })
+            .finally(() => this.loading = false)
+          ;
         } else {
-          this.getFavourite();
+          const self = this;
+          this.getFavourite()
+            .then((resp) => {
+              self.activeNote = {};
+              this.noteList = this.currentRoute ? this.favouriteNotes : this.notes;
+              self.toggleActiveClass();
+            })
+            .finally(() => this.loading = false)
         }
-        setTimeout(() => {
-          this.noteList = this.currentRoute ? this.favouriteNotes : this.notes;
-        }, 1000);
       },
       deleteNote(note) {
-        this.$store.dispatch('deleteNote', note);
-        this.$emit('flash', { message: 'Note Deleted.' });
-        this.get();
+        this.$store.dispatch('deleteNote', note)
+          .then((resp) => {
+            this.$emit('flash', { message: 'Note Deleted.' });
+            this.get();
+          });
       },
       ...mapActions([
         'getAll',
         'getFavourite',
       ]),
       changeRoute(type = null) {
+        this.loading = true;
         this.currentRoute = type;
         this.get();
       },
@@ -121,7 +144,7 @@
         this.$store.dispatch('toggleFavourite', note.id);
         this.get();
         const message = is_favourite ? 'Unfavourited Successfully' :'Favourited successfully.';
-        this.$emit('flash', {message});
+        this.$emit('flash', { message });
         this.getFavouriteId();
       },
       editNote(note) {
@@ -133,7 +156,7 @@
         this.editingNote.description = this.editingNote.description ? this.editingNote.description : this.beingEditedNote.description;
         this.$store.dispatch('update',{
           noteId: noteId,
-          updatedNote:this.editingNote
+          updatedNote: this.editingNote
         })
           .then(() => {
             this.isBeingEdited = false;
@@ -158,6 +181,7 @@
     components: {
       Flash,
       NavBar,
+      Loading,
     }
   }
 </script>

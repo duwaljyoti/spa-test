@@ -43,7 +43,9 @@
           this.$store.dispatch('save', this.note)
             .then((response) => {
               this.$emit('flash', { message: 'Note Created.' });
-              console.log('here===>', response);
+              this.note.title = null;
+              this.note.description = null;
+              this.$router.push({ path: 'note' });
             })
             .catch((err) => {
               console.log(err)
