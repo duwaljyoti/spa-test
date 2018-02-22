@@ -14,7 +14,12 @@ class UsersController extends Controller
      */
     public function index()
     {
-        return response()->json(User::latest()->get());
+        $usersWithNotes = User::query()
+            ->join('notes', 'users.id', 'notes.user_id')
+            ->select('users.name', 'users.id')
+            ->groupBy('users.id');
+
+        return response()->json($usersWithNotes->get());
     }
 
     public function getNotesByUser(User $user)

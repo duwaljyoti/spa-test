@@ -65,7 +65,10 @@ class NotesController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $note = Note::find($id)->update(['title' => $request->get('title')]);
+        $note = Note::find($id)->update([
+            'title' => $request->get('title'),
+            'description' => $request->get('description'),
+        ]);
 
         return response()->json($note);
 

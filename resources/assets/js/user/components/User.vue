@@ -1,5 +1,7 @@
 <template>
     <div>
+        <flash>
+        </flash>
         <loading :loading="loading">
         </loading>
         <nav-bar>
@@ -18,10 +20,12 @@
                     >
                         <h4 class="list-group-item-heading" @click="toggleActiveClass(note)">
                             {{ note.title }} &nbsp
-                            <div v-if="favouriteNoteIdList.indexOf(note.id) === -1"
-                                    class="glyphicon glyphicon-heart"
-                                 @click="favourite(note.id)"
-                            ></div>
+                            <div
+                                    :class="[favouriteNoteIdList.indexOf(note.id) < 0 ? 'glyphicon glyphicon-heart' + '-empty' : 'glyphicon glyphicon-heart']"
+                                    :title="[favouriteNoteIdList.indexOf(note.id) < 0 ? 'Favourite' : 'Un Favourite']"
+                                    @click="toggleFavourite(note, favouriteNoteIdList.indexOf(note.id) > -1)"
+                            >
+                            </div>
                         </h4>
 
                     </a>
@@ -43,6 +47,7 @@
 <script>
     import { mapActions, mapState } from 'vuex';
     import NavBar from '../../components/NavBar';
+    import Flash from '../../components/Flash';
     import Loading from '../../components/Loading';
     import vSelect from 'vue-select';
     import axios from 'axios';
@@ -59,12 +64,8 @@
       },
       mounted() {
         this.loggedUser = window.loggedUser;
-        const self = this;
         this.get()
-          .then((resp) => {
-            if (!self.selectedUser || typeof self.selectedUser === 'undefined') {
-                self.selectedUser = self.userModule.users[0];
-            }
+          .then(() => {
             this.loading = false;
           });
         this.getFavouriteId();
@@ -85,9 +86,14 @@
               .then(resp => this.favouriteNoteIdList = resp.data);
           }
         },
-        favourite(noteId) {
-          this.toggleFavourite(noteId);
-          this.getFavouriteId();
+        toggleFavourite(note, noteIsFavourited) {
+          this.$store.dispatch('toggleFavourite', note.id)
+            .then(() => {
+              this.getFavouriteId();
+              const favMessage = 'Favourited Successfully';
+              const message = noteIsFavourited ? `Un${favMessage}` : favMessage;
+              this.$emit('flash', { message });
+            });
         },
       },
       computed: {
@@ -106,6 +112,7 @@
         }
       },
       components: {
+        Flash,
         NavBar,
         vSelect,
         Loading,

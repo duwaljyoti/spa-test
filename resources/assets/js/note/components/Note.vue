@@ -22,13 +22,11 @@
                             <span v-if="loggedUser">
                                 <div v-if="loggedUser.id === note.user_id" class="glyphicon glyphicon-trash" title="Delete Note"
                                      @click="deleteNote(note)"></div> &nbsp
-
                                 <div
-                                        :class="[favouriteNoteIdList.indexOf(note.id) <= 0 ? heartClass + '-empty' : heartClass]"
-                                        :title="[favouriteNoteIdList.indexOf(note.id) <= 0 ? 'Favourite' : 'Un Favourite']"
-                                        @click="toggleFavourite(note, note.is_favourite)"
+                                        :class="[favouriteNoteIdList.indexOf(note.id) < 0 ? heartClass + '-empty' : heartClass]"
+                                        :title="[favouriteNoteIdList.indexOf(note.id) < 0 ? 'Favourite' : 'Un Favourite']"
+                                        @click="toggleFavourite(note, favouriteNoteIdList.indexOf(note.id) > -1)"
                                 >
-
                                 </div> &nbsp
                                 <div v-if="beingEditedNote.id !== note.id && note.user_id === loggedUser.id"
                                      class="glyphicon glyphicon-pencil" title="Edit Note"
@@ -55,7 +53,7 @@
                 {{ activeNote.description }}
             </div>
             <div v-else>
-                <input type="text" :placeholder="activeNote.description" v-model="editingNote.description">
+               <input type="text" :placeholder="activeNote.description" v-model="editingNote.description">
             </div>
         </div>
     </div>
@@ -88,7 +86,6 @@
       this.getFavouriteId();
     },
     mounted() {
-      console.log(this.$route);
       this.currentRoute = this.$route.query.type;
       this.get();
       setTimeout(() => {
@@ -111,7 +108,7 @@
             .then(() => {
               this.noteList = this.currentRoute ? this.favouriteNotes : this.notes;
             })
-            .finally(() => this.loading = false)
+            .finally(() => this.setLoading())
           ;
         } else {
           const self = this;
@@ -121,7 +118,7 @@
               this.noteList = this.currentRoute ? this.favouriteNotes : this.notes;
               self.toggleActiveClass();
             })
-            .finally(() => this.loading = false)
+            .finally(() => this.setLoading())
         }
       },
       deleteNote(note) {
@@ -154,6 +151,7 @@
       update(noteId) {
         this.editingNote.title = this.editingNote.title ? this.editingNote.title : this.beingEditedNote.title;
         this.editingNote.description = this.editingNote.description ? this.editingNote.description : this.beingEditedNote.description;
+        const self = this;
         this.$store.dispatch('update',{
           noteId: noteId,
           updatedNote: this.editingNote
@@ -161,10 +159,17 @@
           .then(() => {
             this.isBeingEdited = false;
             this.beingEditedNote = {};
-            this.get();
+            console.log('updatd');
             this.$emit('flash', { message: 'Note Updated.' });
+            this.$nextTick(() => {
+              this.toggleActiveClass();
+            });
+            this.get();
           });
       },
+      setLoading(status = false) {
+        this.loading = status;
+      }
     },
     computed: {
       ...mapState([

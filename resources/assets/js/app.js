@@ -10,7 +10,6 @@ const router = new VueRouter({
     routes,
     // mode: 'history',
 });
-console.log(983795873983435);
 window.events = new Vue();
 
 
