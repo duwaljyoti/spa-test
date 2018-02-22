@@ -51,6 +51,7 @@
     import Loading from '../../components/Loading';
     import vSelect from 'vue-select';
     import axios from 'axios';
+    import { noteFavouritedSuccessfully, noteUnFavouritedSuccessfully } from '../../message';
 
     export default {
       name: 'user',
@@ -90,9 +91,8 @@
           this.$store.dispatch('toggleFavourite', note.id)
             .then(() => {
               this.getFavouriteId();
-              const favMessage = 'Favourited Successfully';
-              const message = noteIsFavourited ? `Un${favMessage}` : favMessage;
-              this.$emit('flash', { message });
+              this.$emit('flash', { message: noteIsFavourited ? noteUnFavouritedSuccessfully
+                  : noteFavouritedSuccessfully });
             });
         },
       },

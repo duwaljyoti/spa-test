@@ -17529,12 +17529,15 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vuex__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__components_NavBar__ = __webpack_require__(43);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__components_NavBar___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__components_NavBar__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__components_Loading__ = __webpack_require__(46);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__components_Loading___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__components_Loading__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_vue_select__ = __webpack_require__(75);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_vue_select___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_vue_select__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_axios__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_axios___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_axios__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__components_Flash__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__components_Flash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__components_Flash__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__components_Loading__ = __webpack_require__(46);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__components_Loading___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__components_Loading__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_vue_select__ = __webpack_require__(75);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_vue_select___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_vue_select__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_axios__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_axios___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_axios__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__message__ = __webpack_require__(104);
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 //
@@ -17579,6 +17582,12 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 //
 //
 //
+//
+//
+//
+//
+
+
 
 
 
@@ -17600,11 +17609,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
     var _this = this;
 
     this.loggedUser = window.loggedUser;
-    var self = this;
-    this.get().then(function (resp) {
-      if (!self.selectedUser || typeof self.selectedUser === 'undefined') {
-        self.selectedUser = self.userModule.users[0];
-      }
+    this.get().then(function () {
       _this.loading = false;
     });
     this.getFavouriteId();
@@ -17622,14 +17627,18 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
       var _this2 = this;
 
       if (this.loggedUser && this.loggedUser.id) {
-        __WEBPACK_IMPORTED_MODULE_4_axios___default.a.get('api/users/' + this.loggedUser.id + '/getFavouriteNotesId').then(function (resp) {
+        __WEBPACK_IMPORTED_MODULE_5_axios___default.a.get('api/users/' + this.loggedUser.id + '/getFavouriteNotesId').then(function (resp) {
           return _this2.favouriteNoteIdList = resp.data;
         });
       }
     },
-    favourite: function favourite(noteId) {
-      this.toggleFavourite(noteId);
-      this.getFavouriteId();
+    toggleFavourite: function toggleFavourite(note, noteIsFavourited) {
+      var _this3 = this;
+
+      this.$store.dispatch('toggleFavourite', note.id).then(function () {
+        _this3.getFavouriteId();
+        _this3.$emit('flash', { message: noteIsFavourited ? __WEBPACK_IMPORTED_MODULE_6__message__["b" /* noteUnFavouritedSuccessfully */] : __WEBPACK_IMPORTED_MODULE_6__message__["a" /* noteFavouritedSuccessfully */] });
+      });
     }
   }),
   computed: _extends({}, Object(__WEBPACK_IMPORTED_MODULE_0_vuex__["c" /* mapState */])(['userModule'])),
@@ -17644,9 +17653,10 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
     }
   },
   components: {
+    Flash: __WEBPACK_IMPORTED_MODULE_2__components_Flash___default.a,
     NavBar: __WEBPACK_IMPORTED_MODULE_1__components_NavBar___default.a,
-    vSelect: __WEBPACK_IMPORTED_MODULE_3_vue_select___default.a,
-    Loading: __WEBPACK_IMPORTED_MODULE_2__components_Loading___default.a
+    vSelect: __WEBPACK_IMPORTED_MODULE_4_vue_select___default.a,
+    Loading: __WEBPACK_IMPORTED_MODULE_3__components_Loading___default.a
   }
 });
 
@@ -17669,6 +17679,8 @@ var render = function() {
   return _c(
     "div",
     [
+      _c("flash"),
+      _vm._v(" "),
       _c("loading", { attrs: { loading: _vm.loading } }),
       _vm._v(" "),
       _c("nav-bar"),
@@ -17723,16 +17735,29 @@ var render = function() {
                                   _vm._s(note.title) +
                                   "  \n                        "
                               ),
-                              _vm.favouriteNoteIdList.indexOf(note.id) === -1
-                                ? _c("div", {
-                                    staticClass: "glyphicon glyphicon-heart",
-                                    on: {
-                                      click: function($event) {
-                                        _vm.favourite(note.id)
-                                      }
-                                    }
-                                  })
-                                : _vm._e()
+                              _c("div", {
+                                class: [
+                                  _vm.favouriteNoteIdList.indexOf(note.id) < 0
+                                    ? "glyphicon glyphicon-heart" + "-empty"
+                                    : "glyphicon glyphicon-heart"
+                                ],
+                                attrs: {
+                                  title: [
+                                    _vm.favouriteNoteIdList.indexOf(note.id) < 0
+                                      ? "Favourite"
+                                      : "Un Favourite"
+                                  ]
+                                },
+                                on: {
+                                  click: function($event) {
+                                    _vm.toggleFavourite(
+                                      note,
+                                      _vm.favouriteNoteIdList.indexOf(note.id) >
+                                        -1
+                                    )
+                                  }
+                                }
+                              })
                             ]
                           )
                         ]
@@ -17889,6 +17914,40 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 }), _defineProperty(_GET$GET_USER_NOTES, 'GET_USER_NOTES', function GET_USER_NOTES(state, userNotes) {
   state.userNotes = userNotes;
 }), _GET$GET_USER_NOTES);
+
+/***/ }),
+/* 82 */,
+/* 83 */,
+/* 84 */,
+/* 85 */,
+/* 86 */,
+/* 87 */,
+/* 88 */,
+/* 89 */,
+/* 90 */,
+/* 91 */,
+/* 92 */,
+/* 93 */,
+/* 94 */,
+/* 95 */,
+/* 96 */,
+/* 97 */,
+/* 98 */,
+/* 99 */,
+/* 100 */,
+/* 101 */,
+/* 102 */,
+/* 103 */,
+/* 104 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return noteFavouritedSuccessfully; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return noteUnFavouritedSuccessfully; });
+var noteFavouritedSuccessfully = 'Note favourited.';
+var noteUnFavouritedSuccessfully = 'Note unfavourited.';
+
+
 
 /***/ })
 /******/ ]);

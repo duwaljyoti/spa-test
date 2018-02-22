@@ -16962,7 +16962,6 @@ var router = new __WEBPACK_IMPORTED_MODULE_1_vue_router__["a" /* default */]({
     routes: __WEBPACK_IMPORTED_MODULE_3__routes__["a" /* default */]
     // mode: 'history',
 });
-console.log(983795873983435);
 window.events = new __WEBPACK_IMPORTED_MODULE_0_vue___default.a();
 
 new __WEBPACK_IMPORTED_MODULE_0_vue___default.a({

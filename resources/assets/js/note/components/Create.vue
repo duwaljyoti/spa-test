@@ -15,14 +15,22 @@
                     </div>
             </div>
         </div>
-        <input v-model="note.description">
-        <div style="padding-right:30px">
-            <button class="btn-primary" @click="save(note)">Save</button>
+        <div style="padding-right:30px" class="cheat">
+          <input v-model="note.description">
+          <button class="btn-primary" @click="save(note)">Save</button>
         </div>
 
     </div>
 </template>
-
+<style>
+    #notes-list .container{
+      padding: 20px ;
+    }
+  .cheat{
+    padding-left: 330px;
+    padding-top: 30px;
+  }
+</style>
 <script>
     import { mapActions, mapState } from 'vuex';
     import NavBar from '../../components/NavBar';
@@ -41,7 +49,7 @@
       methods: {
         save() {
           this.$store.dispatch('save', this.note)
-            .then((response) => {
+            .then(() => {
               this.$emit('flash', { message: 'Note Created.' });
               this.note.title = null;
               this.note.description = null;

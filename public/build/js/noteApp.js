@@ -17483,6 +17483,10 @@ var routes = [{ path: '/', name: 'note', component: __WEBPACK_IMPORTED_MODULE_0_
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
+function injectStyle (ssrContext) {
+  if (disposed) return
+  __webpack_require__(102)
+}
 var normalizeComponent = __webpack_require__(1)
 /* script */
 var __vue_script__ = __webpack_require__(86)
@@ -17491,7 +17495,7 @@ var __vue_template__ = __webpack_require__(87)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
-var __vue_styles__ = null
+var __vue_styles__ = injectStyle
 /* scopeId */
 var __vue_scopeId__ = null
 /* moduleIdentifier (server only) */
@@ -17541,6 +17545,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__components_NavBar___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__components_NavBar__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__components_Loading__ = __webpack_require__(46);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__components_Loading___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4__components_Loading__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__message__ = __webpack_require__(104);
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 //
@@ -17606,6 +17611,25 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
 
 
 
@@ -17636,7 +17660,6 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
   mounted: function mounted() {
     var _this = this;
 
-    console.log(this.$route);
     this.currentRoute = this.$route.query.type;
     this.get();
     setTimeout(function () {
@@ -17662,25 +17685,25 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
       if (!this.currentRoute) {
         this.getAll().then(function () {
-          _this3.noteList = _this3.currentRoute ? _this3.favouriteNotes : _this3.notes;
+          _this3.setNoteList();
         }).finally(function () {
-          return _this3.loading = false;
+          return _this3.setLoading();
         });
       } else {
         var self = this;
-        this.getFavourite().then(function (resp) {
+        this.getFavourite().then(function () {
           self.activeNote = {};
-          _this3.noteList = _this3.currentRoute ? _this3.favouriteNotes : _this3.notes;
+          _this3.setNoteList();
           self.toggleActiveClass();
         }).finally(function () {
-          return _this3.loading = false;
+          return _this3.setLoading();
         });
       }
     },
     deleteNote: function deleteNote(note) {
       var _this4 = this;
 
-      this.$store.dispatch('deleteNote', note).then(function (resp) {
+      this.$store.dispatch('deleteNote', note).then(function () {
         _this4.$emit('flash', { message: 'Note Deleted.' });
         _this4.get();
       });
@@ -17689,20 +17712,21 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
     changeRoute: function changeRoute() {
       var type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 
-      this.loading = true;
+      this.setLoading(true);
       this.currentRoute = type;
       this.get();
+      this.editNote(false);
     },
     toggleFavourite: function toggleFavourite(note, is_favourite) {
       this.$store.dispatch('toggleFavourite', note.id);
       this.get();
-      var message = is_favourite ? 'Unfavourited Successfully' : 'Favourited successfully.';
+      var message = is_favourite ? __WEBPACK_IMPORTED_MODULE_5__message__["a" /* noteFavouritedSuccessfully */] : __WEBPACK_IMPORTED_MODULE_5__message__["b" /* noteUnFavouritedSuccessfully */];
       this.$emit('flash', { message: message });
       this.getFavouriteId();
     },
     editNote: function editNote(note) {
-      this.isBeingEdited = true;
-      this.beingEditedNote = note;
+      this.isBeingEdited = !!note;
+      this.beingEditedNote = note ? note : {};
     },
     update: function update(noteId) {
       var _this5 = this;
@@ -17715,9 +17739,18 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
       }).then(function () {
         _this5.isBeingEdited = false;
         _this5.beingEditedNote = {};
-        _this5.get();
         _this5.$emit('flash', { message: 'Note Updated.' });
+        _this5.activeNote.description = _this5.editingNote.description;
+        _this5.get();
       });
+    },
+    setLoading: function setLoading() {
+      var status = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
+      this.loading = status;
+    },
+    setNoteList: function setNoteList() {
+      this.noteList = this.currentRoute ? this.favouriteNotes : this.notes;
     }
   }),
   computed: _extends({}, Object(__WEBPACK_IMPORTED_MODULE_0_vuex__["c" /* mapState */])(['notes', 'favouriteNotes']), {
@@ -17791,14 +17824,14 @@ var render = function() {
                           _vm.beingEditedNote.id !== note.id
                             ? _c("span", [
                                 _vm._v(
-                                  "\n                            " +
+                                  "\n                              " +
                                     _vm._s(note.title) +
-                                    "  \n                        "
+                                    "  \n                          "
                                 )
                               ])
                             : _vm._e(),
                           _vm._v(" "),
-                          _vm.loggedUser
+                          _vm.beingEditedNote.id !== note.id
                             ? _c("span", [
                                 _vm.loggedUser.id === note.user_id
                                   ? _c("div", {
@@ -17811,19 +17844,19 @@ var render = function() {
                                       }
                                     })
                                   : _vm._e(),
-                                _vm._v("  \n\n                            "),
+                                _vm._v(
+                                  "  \n                                  "
+                                ),
                                 _c("div", {
                                   class: [
-                                    _vm.favouriteNoteIdList.indexOf(note.id) <=
-                                    0
+                                    _vm.favouriteNoteIdList.indexOf(note.id) < 0
                                       ? _vm.heartClass + "-empty"
                                       : _vm.heartClass
                                   ],
                                   attrs: {
                                     title: [
-                                      _vm.favouriteNoteIdList.indexOf(
-                                        note.id
-                                      ) <= 0
+                                      _vm.favouriteNoteIdList.indexOf(note.id) <
+                                      0
                                         ? "Favourite"
                                         : "Un Favourite"
                                     ]
@@ -17832,70 +17865,69 @@ var render = function() {
                                     click: function($event) {
                                       _vm.toggleFavourite(
                                         note,
-                                        note.is_favourite
+                                        _vm.favouriteNoteIdList.indexOf(
+                                          note.id
+                                        ) > -1
+                                      )
+                                    }
+                                  }
+                                })
+                              ])
+                            : _vm._e(),
+                          _vm._v("\n\n             \n            "),
+                          _vm.beingEditedNote.id !== note.id &&
+                          note.user_id === _vm.loggedUser.id
+                            ? _c("div", {
+                                staticClass: "glyphicon glyphicon-pencil",
+                                attrs: { title: "Edit Note" },
+                                on: {
+                                  click: function($event) {
+                                    _vm.editNote(note)
+                                  }
+                                }
+                              })
+                            : _vm._e(),
+                          _vm._v(" "),
+                          _vm.isBeingEdited && _vm.activeNote.id === note.id
+                            ? _c("div", [
+                                _c("input", {
+                                  directives: [
+                                    {
+                                      name: "model",
+                                      rawName: "v-model",
+                                      value: _vm.beingEditedNote.title,
+                                      expression: "beingEditedNote.title"
+                                    }
+                                  ],
+                                  staticClass: "inputText",
+                                  attrs: { type: "text" },
+                                  domProps: {
+                                    value: _vm.beingEditedNote.title
+                                  },
+                                  on: {
+                                    input: function($event) {
+                                      if ($event.target.composing) {
+                                        return
+                                      }
+                                      _vm.$set(
+                                        _vm.beingEditedNote,
+                                        "title",
+                                        $event.target.value
                                       )
                                     }
                                   }
                                 }),
-                                _vm._v("  \n                            "),
-                                _vm.beingEditedNote.id !== note.id &&
-                                note.user_id === _vm.loggedUser.id
-                                  ? _c("div", {
-                                      staticClass: "glyphicon glyphicon-pencil",
-                                      attrs: { title: "Edit Note" },
-                                      on: {
-                                        click: function($event) {
-                                          _vm.editNote(note)
-                                        }
-                                      }
-                                    })
-                                  : _vm._e(),
                                 _vm._v(" "),
-                                _vm.isBeingEdited &&
-                                _vm.activeNote.id === note.id
-                                  ? _c("div", [
-                                      _c("input", {
-                                        directives: [
-                                          {
-                                            name: "model",
-                                            rawName: "v-model",
-                                            value: _vm.editingNote.title,
-                                            expression: "editingNote.title"
-                                          }
-                                        ],
-                                        attrs: {
-                                          type: "text",
-                                          placeholder: note.title
-                                        },
-                                        domProps: {
-                                          value: _vm.editingNote.title
-                                        },
-                                        on: {
-                                          input: function($event) {
-                                            if ($event.target.composing) {
-                                              return
-                                            }
-                                            _vm.$set(
-                                              _vm.editingNote,
-                                              "title",
-                                              $event.target.value
-                                            )
-                                          }
-                                        }
-                                      }),
-                                      _vm._v(" "),
-                                      _c("div", {
-                                        staticClass: "glyphicon glyphicon-ok",
-                                        attrs: { title: "Save" },
-                                        on: {
-                                          click: function($event) {
-                                            _vm.update(note.id)
-                                          }
-                                        }
-                                      }),
-                                      _vm._v("  \n                            ")
-                                    ])
-                                  : _vm._e()
+                                _c("div", {
+                                  staticClass: "glyphicon glyphicon-ok",
+                                  attrs: { title: "Save" },
+                                  on: {
+                                    click: function($event) {
+                                      _vm.update(note.id)
+                                    }
+                                  }
+                                }),
+                                _vm._v("\n               \n            ")
                               ])
                             : _vm._e()
                         ]
@@ -17909,7 +17941,7 @@ var render = function() {
                   "span",
                   [
                     _vm._v(
-                      "\n                    Looks like you dont have any notes at th moment.\n                    "
+                      "\n                      Looks like you dont have any notes at th moment.\n                      "
                     ),
                     _c("router-link", { attrs: { to: "/create" } }, [
                       _vm._v("Add")
@@ -17922,13 +17954,11 @@ var render = function() {
       ]),
       _vm._v(" "),
       _vm.noteList.length
-        ? _c("div", [
+        ? _c("div", { staticClass: "cheat" }, [
             !_vm.isBeingEdited
               ? _c("div", [
                   _vm._v(
-                    "\n            " +
-                      _vm._s(_vm.activeNote.description) +
-                      "\n        "
+                    "\n      " + _vm._s(_vm.activeNote.description) + "\n    "
                   )
                 ])
               : _c("div", [
@@ -17937,22 +17967,22 @@ var render = function() {
                       {
                         name: "model",
                         rawName: "v-model",
-                        value: _vm.editingNote.description,
-                        expression: "editingNote.description"
+                        value: _vm.beingEditedNote.description,
+                        expression: "beingEditedNote.description"
                       }
                     ],
                     attrs: {
                       type: "text",
                       placeholder: _vm.activeNote.description
                     },
-                    domProps: { value: _vm.editingNote.description },
+                    domProps: { value: _vm.beingEditedNote.description },
                     on: {
                       input: function($event) {
                         if ($event.target.composing) {
                           return
                         }
                         _vm.$set(
-                          _vm.editingNote,
+                          _vm.beingEditedNote,
                           "description",
                           $event.target.value
                         )
@@ -17981,6 +18011,10 @@ if (false) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
+function injectStyle (ssrContext) {
+  if (disposed) return
+  __webpack_require__(105)
+}
 var normalizeComponent = __webpack_require__(1)
 /* script */
 var __vue_script__ = __webpack_require__(89)
@@ -17989,7 +18023,7 @@ var __vue_template__ = __webpack_require__(90)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
-var __vue_styles__ = null
+var __vue_styles__ = injectStyle
 /* scopeId */
 var __vue_scopeId__ = null
 /* moduleIdentifier (server only) */
@@ -18062,6 +18096,14 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -18082,7 +18124,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
     save: function save() {
       var _this = this;
 
-      this.$store.dispatch('save', this.note).then(function (response) {
+      this.$store.dispatch('save', this.note).then(function () {
         _this.$emit('flash', { message: 'Note Created.' });
         _this.note.title = null;
         _this.note.description = null;
@@ -18144,40 +18186,44 @@ var render = function() {
         ])
       ]),
       _vm._v(" "),
-      _c("input", {
-        directives: [
-          {
-            name: "model",
-            rawName: "v-model",
-            value: _vm.note.description,
-            expression: "note.description"
-          }
-        ],
-        domProps: { value: _vm.note.description },
-        on: {
-          input: function($event) {
-            if ($event.target.composing) {
-              return
-            }
-            _vm.$set(_vm.note, "description", $event.target.value)
-          }
-        }
-      }),
-      _vm._v(" "),
-      _c("div", { staticStyle: { "padding-right": "30px" } }, [
-        _c(
-          "button",
-          {
-            staticClass: "btn-primary",
+      _c(
+        "div",
+        { staticClass: "cheat", staticStyle: { "padding-right": "30px" } },
+        [
+          _c("input", {
+            directives: [
+              {
+                name: "model",
+                rawName: "v-model",
+                value: _vm.note.description,
+                expression: "note.description"
+              }
+            ],
+            domProps: { value: _vm.note.description },
             on: {
-              click: function($event) {
-                _vm.save(_vm.note)
+              input: function($event) {
+                if ($event.target.composing) {
+                  return
+                }
+                _vm.$set(_vm.note, "description", $event.target.value)
               }
             }
-          },
-          [_vm._v("Save")]
-        )
-      ])
+          }),
+          _vm._v(" "),
+          _c(
+            "button",
+            {
+              staticClass: "btn-primary",
+              on: {
+                click: function($event) {
+                  _vm.save(_vm.note)
+                }
+              }
+            },
+            [_vm._v("Save")]
+          )
+        ]
+      )
     ],
     1
   )
@@ -18254,6 +18300,106 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 }), _defineProperty(_GET$GET_FAVOURITE$SA, 'GET_FAVOURITE', function GET_FAVOURITE(state, notes) {
   state.favouriteNotes = notes;
 }), _defineProperty(_GET$GET_FAVOURITE$SA, 'SAVE', function SAVE(state) {}), _GET$GET_FAVOURITE$SA);
+
+/***/ }),
+/* 94 */,
+/* 95 */,
+/* 96 */,
+/* 97 */,
+/* 98 */,
+/* 99 */,
+/* 100 */,
+/* 101 */,
+/* 102 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(103);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var update = __webpack_require__(15)("0d784cb6", content, false);
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-e3eef100\",\"scoped\":false,\"hasInlineConfig\":true}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0&bustCache!./Note.vue", function() {
+     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-e3eef100\",\"scoped\":false,\"hasInlineConfig\":true}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0&bustCache!./Note.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 103 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(14)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "\n.inputText {\n  color: black;\n}\n.cheat{\n  padding-left: 330px;\n  padding-top: 30px;\n  font-size: 14px;\n}\n#list-header {\n  padding: 20px;\n}\n#list-header h2{\n  padding: 0;\n  margin: 0;\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 104 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return noteFavouritedSuccessfully; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return noteUnFavouritedSuccessfully; });
+var noteFavouritedSuccessfully = 'Note favourited.';
+var noteUnFavouritedSuccessfully = 'Note unfavourited.';
+
+
+
+/***/ }),
+/* 105 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(106);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var update = __webpack_require__(15)("390a96f8", content, false);
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-0f7983ec\",\"scoped\":false,\"hasInlineConfig\":true}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0&bustCache!./Create.vue", function() {
+     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-0f7983ec\",\"scoped\":false,\"hasInlineConfig\":true}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0&bustCache!./Create.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 106 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(14)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "\n#notes-list .container{\n    padding: 20px ;\n}\n.cheat{\n  padding-left: 330px;\n  padding-top: 30px;\n}\n", ""]);
+
+// exports
+
 
 /***/ })
 /******/ ]);

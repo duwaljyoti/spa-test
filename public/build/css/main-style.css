@@ -85,3 +85,6 @@ body {
 .starred {
     color: #F7AE4F;
 }
+.navbar{
+    margin-bottom: 0;
+}
