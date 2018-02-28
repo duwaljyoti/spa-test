@@ -76,16 +76,17 @@
         ...mapActions([
           'get',
           'getUserNotes',
-          'toggleFavourite'
+          'toggleFavourite',
+          'getUserFavouriteId',
         ]),
         toggleActiveClass(note = null, setActiveNoteNull = false) {
           this.activeNote = setActiveNoteNull ? {} : (note ? note : (this.userNotes ? this.userNotes[0] : {}));
         },
         getFavouriteId() {
-          if (this.loggedUser && this.loggedUser.id) {
-            axios.get(`api/users/${this.loggedUser.id}/getFavouriteNotesId`)
-              .then(resp => this.favouriteNoteIdList = resp.data);
-          }
+          this.loading = true;
+          this.getUserFavouriteId(this.loggedUser.id)
+            .then((resp) => this.favouriteNoteIdList = resp )
+            .finally(() => this.loading = false);
         },
         toggleFavourite(note, noteIsFavourited) {
           this.$store.dispatch('toggleFavourite', note.id)

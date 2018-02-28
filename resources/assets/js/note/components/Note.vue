@@ -118,10 +118,10 @@
         this.activeNote = note ? note : (this.noteList ? this.noteList[0] : {});
       },
       getFavouriteId() {
-        if (this.loggedUser && this.loggedUser.id) {
-          axios.get(`api/users/${this.loggedUser.id}/getFavouriteNotesId`)
-            .then(resp => this.favouriteNoteIdList = resp.data);
-        }
+        this.setLoading(true);
+        this.getUserFavouriteId(this.loggedUser.id)
+          .then((resp) => this.favouriteNoteIdList = resp )
+          .finally(() => this.setLoading());
       },
       get() {
         if (!this.currentRoute) {
@@ -152,6 +152,7 @@
       ...mapActions([
         'getAll',
         'getFavourite',
+        'getUserFavouriteId',
       ]),
       changeRoute(type = null) {
         this.setLoading(true);
@@ -162,7 +163,7 @@
       toggleFavourite(note, is_favourite) {
         this.$store.dispatch('toggleFavourite', note.id);
         this.get();
-        const message = is_favourite ? noteFavouritedSuccessfully : noteUnFavouritedSuccessfully;
+        const message = is_favourite ? noteUnFavouritedSuccessfully : noteFavouritedSuccessfully;
         this.$emit('flash', { message });
         this.getFavouriteId();
       },

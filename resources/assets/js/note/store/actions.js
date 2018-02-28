@@ -41,8 +41,13 @@ export default {
     });
   },
 
-  update({commit} ,noteDetails) {
+  update({ commit } ,noteDetails) {
     axios.put(`${RESOURCE_NOTE}/${noteDetails.noteId}`, noteDetails.updatedNote)
       .then(resp => console.log(resp));
+  },
+
+  getUserFavouriteId({ commit }, userId) {
+    return axios.get(`api/users/${userId}/getFavouriteNotesId`)
+      .then(resp => resp.data);
   }
 }
