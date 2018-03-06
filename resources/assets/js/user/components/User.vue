@@ -89,6 +89,7 @@
             .finally(() => this.loading = false);
         },
         toggleFavourite(note, noteIsFavourited) {
+          this.loading = true;
           this.$store.dispatch('toggleFavourite', note.id)
             .then(() => {
               this.getFavouriteId();

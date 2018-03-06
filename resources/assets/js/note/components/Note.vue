@@ -162,10 +162,10 @@
       },
       toggleFavourite(note, is_favourite) {
         this.$store.dispatch('toggleFavourite', note.id);
-        this.get();
         const message = is_favourite ? noteUnFavouritedSuccessfully : noteFavouritedSuccessfully;
         this.$emit('flash', { message });
         this.getFavouriteId();
+        this.get();
       },
       editNote(note) {
         this.isBeingEdited = !! note;
