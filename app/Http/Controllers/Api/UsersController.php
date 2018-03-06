@@ -17,7 +17,7 @@ class UsersController extends Controller
         $usersWithNotes = User::query()
             ->join('notes', 'users.id', 'notes.user_id')
             ->select('users.name', 'users.id')
-            ->groupBy('users.id');
+            ->groupBy(['users.id', 'users.name']);
 
         return response()->json($usersWithNotes->get());
     }

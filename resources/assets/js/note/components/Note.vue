@@ -13,7 +13,7 @@
       <div class="container">
         <div class="list-group" v-if="noteList.length">
           <a class="list-group-item" href="#" v-for="note in noteList"
-             :class="activeNote.id === note.id ? 'active' : ''"
+             :class="activeNote ? activeNote.id === note.id ? 'active' : '' : ''"
           >
             <h4 class="list-group-item-heading" @click="toggleActiveClass(note)">
                             <span v-if="beingEditedNote.id !== note.id">
@@ -46,15 +46,15 @@
         </div>
         <div v-else>
                     <span>
-                        Looks like you dont have any notes at th moment.
-                        <router-link to="/create">Add</router-link>
+                        {{ noNotesFoundMessage }}
+                        <router-link to="/create" v-if="$route.query.type !== 'favourite'">Add</router-link>
                     </span>
         </div>
       </div>
     </div>
     <div v-if="noteList.length" class="cheat">
       <div v-if="!isBeingEdited">
-        {{ activeNote.description }}
+        {{ activeNote ? activeNote.description : '' }}
       </div>
       <div v-else>
         <input type="text" :placeholder="activeNote.description" v-model="beingEditedNote.description">
@@ -82,7 +82,6 @@
 <script>
   import { mapState, mapActions } from 'vuex';
   import Flash from '../../components/Flash';
-  import axios from 'axios';
   import NavBar from '../../components/NavBar';
   import Loading from '../../components/Loading';
   import { noteFavouritedSuccessfully, noteUnFavouritedSuccessfully } from '../../message';
@@ -99,6 +98,7 @@
         loggedUser: {},
         favouriteNoteIdList: [],
         loading: true,
+        noNotesFoundMessage: null,
       }
     },
     name: 'Note',
@@ -109,9 +109,6 @@
     mounted() {
       this.currentRoute = this.$route.query.type;
       this.get();
-      setTimeout(() => {
-        this.toggleActiveClass();
-      }, 1500);
     },
     methods: {
       toggleActiveClass(note) {
@@ -128,6 +125,8 @@
           this.getAll()
             .then(() => {
               this.setNoteList();
+              this.toggleActiveClass();
+              this.setNoNoteMessageFound('No notes found.');
             })
             .finally(() => this.setLoading())
           ;
@@ -138,6 +137,7 @@
               self.activeNote = {};
               this.setNoteList();
               self.toggleActiveClass();
+              this.setNoNoteMessageFound('No favourite notes found.');
             })
             .finally(() => this.setLoading())
         }
@@ -191,6 +191,9 @@
       },
       setNoteList() {
         this.noteList = this.currentRoute ? this.favouriteNotes : this.notes;
+      },
+      setNoNoteMessageFound(message) {
+        this.noNotesFoundMessage = ! this.noteList.length ?  message :  this.noNotesFoundMessage;
       }
     },
     computed: {

@@ -1,5 +1,7 @@
 <template>
     <div>
+        <loading :loading="loading">
+        </loading>
         <flash>
         </flash>
         <nav-bar>
@@ -32,9 +34,10 @@
   }
 </style>
 <script>
-    import { mapActions, mapState } from 'vuex';
+    import { mapState } from 'vuex';
     import NavBar from '../../components/NavBar';
     import Flash from '../../components/Flash';
+    import Loading from '../../components/Loading';
 
     export default {
       name: 'Create',
@@ -44,10 +47,12 @@
           title: '',
           description: '',
           },
+          loading: false,
         }
       },
       methods: {
         save() {
+          this.loading = true;
           this.$store.dispatch('save', this.note)
             .then(() => {
               this.$emit('flash', { message: 'Note Created.' });
@@ -66,6 +71,7 @@
       components: {
         NavBar,
         Flash,
+        Loading,
       },
     }
 </script>
